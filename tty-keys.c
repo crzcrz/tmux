@@ -811,13 +811,14 @@ first_key:
 		size = 1;
 	}
 
-	/* `Ctrl-<SPACE>` is special. */
+	/* C-Space is special. */
 	if ((key & KEYC_MASK_KEY) == C0_NUL)
 		key = ' ' | KEYC_CTRL | (key & KEYC_META);
 
-	/* Fix up all C0 control codes that don't have a dedicated key
-	 * into corresponding `Ctrl-` keys. Convert characters in the A-Z
-	 * range into lowercase to prevent mixing up with CSI u keys.
+	/*
+	 * Fix up all C0 control codes that don't have a dedicated key into
+	 * corresponding Ctrl keys. Convert characters in the A-Z range into
+	 * lowercase to prevent mixing up with CSI u keys.
 	 */
 	onlykey = key & KEYC_MASK_KEY;
 	if (onlykey < 0x20 && onlykey != C0_BS &&
