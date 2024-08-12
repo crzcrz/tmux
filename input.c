@@ -1407,16 +1407,33 @@ input_csi_dispatch(struct input_ctx *ictx)
 	case INPUT_CSI_MODSET:
 		n = input_get(ictx, 0, 0, 0);
 		m = input_get(ictx, 1, 0, 0);
-		if (n == 0 || (n == 4 && m == 0)) {
-			screen_write_mode_clear(sctx,
-			    MODE_KEYS_EXTENDED|MODE_KEYS_EXTENDED_2);
-		} else if (n == 4 && m == 1)
+		/*
+		 * Set the extended key reporting mode as per client request,
+		 * unless "extended-keys always" forces us into mode 1.
+		 *
+		 * Note that having both MODE_KEYS_CSI_U and MODE_KEYS_EXTENDED
+		 * or MODE_KEYS_EXTENDED_2 set is valid, as CSI u mode is an
+		 * extension to the standard mode, meaning that setting an
+		 * extended mode overrides it, and clearing an extended mode
+		 * reverts back to it.
+		 */
+		if (options_get_number(global_options, "extended-keys") == 2)
+			break;
+		screen_write_mode_clear(sctx,
+		    MODE_KEYS_EXTENDED | MODE_KEYS_EXTENDED_2);
+		if (n == 4 && m == 1)
 			screen_write_mode_set(sctx, MODE_KEYS_EXTENDED);
-		else if (n == 4 && m == 2)
+		if (n == 4 && m == 2)
 			screen_write_mode_set(sctx, MODE_KEYS_EXTENDED_2);
 		break;
 	case INPUT_CSI_MODOFF:
 		n = input_get(ictx, 0, 0, 0);
+		/*
+		 * Clear the extended key reporting mode as per client request,
+		 * unless "extended-keys always" forces us into mode 1.
+		 *
+		 * Same as above, MODE_KEYS_CSI_U is untouched.
+		 */
 		if (n == 4) {
 			screen_write_mode_clear(sctx,
 			    MODE_KEYS_EXTENDED|MODE_KEYS_EXTENDED_2);
