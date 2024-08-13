@@ -93,6 +93,9 @@ static const char *options_table_detach_on_destroy_list[] = {
 static const char *options_table_extended_keys_list[] = {
 	"off", "on", "always", "kkp", NULL
 };
+static const char *options_table_extended_keys_format_list[] = {
+	"csi-u", "xterm", NULL
+};
 static const char *options_table_allow_passthrough_list[] = {
 	"off", "on", "all", NULL
 };
@@ -312,6 +315,14 @@ const struct options_table_entry options_table[] = {
 	  .default_num = 0,
 	  .text = "Whether to request extended key sequences from terminals "
 		  "that support it."
+	},
+
+	{ .name = "extended-keys-format",
+	  .type = OPTIONS_TABLE_CHOICE,
+	  .scope = OPTIONS_TABLE_SERVER,
+	  .choices = options_table_extended_keys_format_list,
+	  .default_num = 0,
+	  .text = "The format of emitted extended key sequences."
 	},
 
 	{ .name = "focus-events",

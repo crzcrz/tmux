@@ -422,7 +422,7 @@ input_key_write(const char *from, struct bufferevent *bev, const char *data,
 
 /*
  * Encode and write an extended key escape sequence in one of the two
- * possible formats, depending on the client mode.
+ * possible formats, depending on the client mode and options.
  */
 static int
 input_key_extended(struct screen *s, struct bufferevent *bev, key_code key)
@@ -471,8 +471,11 @@ input_key_extended(struct screen *s, struct bufferevent *bev, key_code key)
 	case MODE_KEYS_EXTENDED | MODE_KEYS_CSI_U:
 	case MODE_KEYS_EXTENDED_2:
 	case MODE_KEYS_EXTENDED_2 | MODE_KEYS_CSI_U:
-		xsnprintf(tmp, sizeof tmp, "\033[27;%c;%llu~", modifier, key);
-		break;
+		if (options_get_number(global_options, "extended-keys-format")) {
+			xsnprintf(tmp, sizeof tmp, "\033[27;%c;%llu~", modifier, key);
+			break;
+		}
+		/* Fall-through is intentional. */
 	case MODE_KEYS_CSI_U:
 		xsnprintf(tmp, sizeof tmp, "\033[%llu;%cu", key, modifier);
 		break;
