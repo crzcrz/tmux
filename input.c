@@ -1410,16 +1410,16 @@ input_csi_dispatch(struct input_ctx *ictx)
 		m = input_get(ictx, 1, 0, 0);
 		/*
 		 * Set the extended key reporting mode as per the client request,
-		 * unless "extended-keys always" forces us into mode 1.
+		 * unless "extended-keys" is set to "off".
 		 */
-		if (options_get_number(global_options, "extended-keys") != 1)
+		if (options_get_number(global_options, "extended-keys") == 0)
 			break;
-		screen_write_mode_clear(sctx,
-		    MODE_KEYS_EXTENDED|MODE_KEYS_EXTENDED_2);
-		if (n == 4 && m == 1)
-			screen_write_mode_set(sctx, MODE_KEYS_EXTENDED);
+		screen_write_mode_clear(sctx, EXTENDED_KEY_MODES);
 		if (n == 4 && m == 2)
 			screen_write_mode_set(sctx, MODE_KEYS_EXTENDED_2);
+		else if ((n == 4 && m == 1) ||
+				 options_get_number(global_options, "extended-keys") == 2)
+			screen_write_mode_set(sctx, MODE_KEYS_EXTENDED);
 		break;
 	case INPUT_CSI_MODOFF:
 		n = input_get(ictx, 0, 0, 0);
@@ -1430,6 +1430,8 @@ input_csi_dispatch(struct input_ctx *ictx)
 		if (n == 4) {
 			screen_write_mode_clear(sctx,
 			    MODE_KEYS_EXTENDED|MODE_KEYS_EXTENDED_2);
+			if (options_get_number(global_options, "extended-keys") == 2)
+				screen_write_mode_set(sctx, MODE_KEYS_EXTENDED);
 		}
 		break;
 	case INPUT_CSI_WINOPS:
